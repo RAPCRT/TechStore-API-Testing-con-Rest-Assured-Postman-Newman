@@ -1,0 +1,495 @@
+{
+	"info": {
+		"_postman_id": "31c05246-4fc3-4f25-be58-240aaaaf55b1",
+		"name": "actividadModularModulo6",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6575008"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200/201\", () => pm.expect([200,201]).to.include(pm.response.code));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{authBase}}/register",
+					"host": [
+						"{{authBase}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 OK\", () => pm.response.to.have.status(200));\r",
+							"const b = pm.response.json();\r",
+							"pm.expect(b.accessToken).to.exist;\r",
+							"pm.environment.set(\"jwtToken\", b.accessToken);\r",
+							"\r",
+							"\r",
+							"// Validación simple de forma JWT (tres segmentos)\r",
+							"pm.test(\"Formato JWT\", () => pm.expect(String(b.accessToken).split('.').length).to.eql(3));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{authBase}}/login",
+					"host": [
+						"{{authBase}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Product Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 201/200\", () => pm.expect([200,201]).to.include(pm.response.code));\r",
+							"\r",
+							"const res = pm.response.json();\r",
+							"pm.test(\"Respuesta tiene id\", () => pm.expect(res.id).to.exist);\r",
+							"\r",
+							"// Guarda el ID para el GET siguiente\r",
+							"pm.environment.set(\"productId\", String(res.id));\r",
+							"\r",
+							"// (Opcional) Valida estructura mínima\r",
+							"pm.test(\"Estructura mínima OK\", () => {\r",
+							"  pm.expect(res).to.have.property(\"nombre\");\r",
+							"  pm.expect(res).to.have.property(\"precio\");\r",
+							"  pm.expect(res).to.have.property(\"stock\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nombre\": \"Producto Demo {{$randomUUID}}\",\r\n  \"descripcion\": \"Dispositivos rojos\",\r\n  \"precio\": 49990,\r\n  \"stock\": 10,\r\n  \"id_categoria\": 1\r\n}\r\n    ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseHost}}{{productoBase}}",
+					"host": [
+						"{{baseHost}}{{productoBase}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"\r",
+							"const res = pm.response.json();\r",
+							"\r",
+							"// Estructura mínima\r",
+							"pm.test(\"Estructura mínima OK\", () => {\r",
+							"  pm.expect(res).to.have.property(\"id\");\r",
+							"  pm.expect(res).to.have.property(\"nombre\");\r",
+							"  pm.expect(res).to.have.property(\"precio\");\r",
+							"  pm.expect(res).to.have.property(\"stock\");\r",
+							"});\r",
+							"\r",
+							"// El id debe coincidir con el que guardamos tras el POST\r",
+							"const expectedId = Number(pm.environment.get(\"productId\"));\r",
+							"pm.test(\"ID coincide\", () => pm.expect(Number(res.id)).to.eql(expectedId));\r",
+							"\r",
+							"// (Opcional) Si en el POST guardaste nombre/precio, puedes validar:\r",
+							"const expectedNombre = pm.environment.get(\"productNombre\");\r",
+							"if (expectedNombre) {\r",
+							"  pm.test(\"Nombre coincide\", () => pm.expect(String(res.nombre)).to.eql(String(expectedNombre)));\r",
+							"}\r",
+							"const expectedPrecio = pm.environment.get(\"productPrecio\");\r",
+							"if (expectedPrecio) {\r",
+							"  pm.test(\"Precio coincide\", () => pm.expect(Number(res.precio)).to.eql(Number(expectedPrecio)));\r",
+							"}\r",
+							"\r",
+							"// (Opcional) Validar categoría si tu API la devuelve como objeto\r",
+							"if (res.category && res.category.id !== undefined) {\r",
+							"  pm.test(\"Tiene categoría\", () => pm.expect(res.category.id).to.be.a(\"number\"));\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const pid = pm.environment.get(\"productId\");\r",
+							"if (!pid) {\r",
+							"  postman.setNextRequest(null);\r",
+							"  throw new Error(\"Falta productId en el entorno. Ejecuta primero 'Product Create'.\");\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseHost}}{{productoBase}}/{{productId}}",
+					"host": [
+						"{{baseHost}}{{productoBase}}"
+					],
+					"path": [
+						"{{productId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Product",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Asegura JWT en header si no usas auth de colección\r",
+							"if (!pm.request.headers.has(\"Authorization\") && pm.collectionVariables.get(\"jwt\")) {\r",
+							"  pm.request.headers.add({ key: \"Authorization\", value: \"Bearer \" + pm.collectionVariables.get(\"jwt\") });\r",
+							"}\r",
+							"\r",
+							"// Si no hay productId, crear un producto primero y setearlo\r",
+							"if (!pm.collectionVariables.get(\"productId\")) {\r",
+							"  const url = pm.variables.replaceIn(\"{{baseHost}}/api/products\");\r",
+							"  const jwt = pm.collectionVariables.get(\"jwt\");\r",
+							"  const body = {\r",
+							"    \"nombre\": \"Mouse inalámbrico\",\r",
+							"    \"descripcion\": \"2.4G\",\r",
+							"    \"precio\": 12.9,\r",
+							"    \"stock\": 45,\r",
+							"    \"categoryId\": pm.collectionVariables.get(\"categoryId\") || 1\r",
+							"  };\r",
+							"\r",
+							"  pm.sendRequest({\r",
+							"    url, method: \"POST\",\r",
+							"    header: { \"Content-Type\": \"application/json\", \"Authorization\": \"Bearer \" + jwt },\r",
+							"    body: { mode: \"raw\", raw: JSON.stringify(body) }\r",
+							"  }, (err, res) => {\r",
+							"    if (err || !res) { throw new Error(\"No se pudo crear producto para PUT\"); }\r",
+							"    const created = res.json();\r",
+							"    pm.collectionVariables.set(\"productId\", created.id);\r",
+							"  });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nombre\": \"Mouse inalámbrico PRO\",\r\n  \"descripcion\": \"2.4G + BT\",\r\n  \"precio\": 19.99,\r\n  \"stock\": 80,\r\n  \"id_categoria\": 1\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseHost}}{{productoBase}}/{{productId}}",
+					"host": [
+						"{{baseHost}}{{productoBase}}"
+					],
+					"path": [
+						"{{productId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.expect([204,200,202]).to.include(pm.response.code);\r",
+							"\r",
+							"// Verificar que ya no existe\r",
+							"pm.sendRequest({\r",
+							"  url: pm.variables.replaceIn(\"{{baseHost}}/api/products/{{productId}}\"),\r",
+							"  method: \"GET\",\r",
+							"  header: { \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"jwt\") }\r",
+							"}, (err, res) => {\r",
+							"  pm.test(\"Producto eliminado no es recuperable\", () => {\r",
+							"    pm.expect([404,400,204]).to.include(res.code);\r",
+							"  });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseHost}}{{productoBase}}/{{productId}}",
+					"host": [
+						"{{baseHost}}{{productoBase}}"
+					],
+					"path": [
+						"{{productId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"const jwt = pm.environment.get(\"jwtToken\");\r",
+					"const url = pm.request.url.toString();\r",
+					"const isAuth = /\\/api\\/auth\\//.test(url);\r",
+					"\r",
+					"if (jwt && !isAuth) {\r",
+					"  pm.request.headers.upsert({ key: \"Authorization\", value: `Bearer ${jwt}` });\r",
+					"} else {\r",
+					"  pm.request.headers.remove(\"Authorization\");\r",
+					"}\r",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "productId",
+			"value": ""
+		}
+	]
+}
